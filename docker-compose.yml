@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${STAGE:-development}
+    ports:
+      - ${PORT:-8080}:80
+    env_file:
+      - .env
+    restart: on-failure
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+    volumes:
+      - database:/data
+
+  app-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - ${PORT:-8080}:80
+    env_file:
+      - .env
+    volumes:
+      - ./:/app:cached
+      - /app/node_modules
+    command: npm run dev
+    restart: always
+
+volumes:
+  database:
+    driver: local
